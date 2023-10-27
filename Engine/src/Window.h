@@ -1,6 +1,7 @@
 #pragma once
 
-#include <windows.h>
+#include "WinInclude.h"
+#include "ExceptionManager.h"
 #include <optional>
 
 class Window

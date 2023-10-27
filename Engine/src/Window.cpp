@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "Macros/ExceptionMacros.h"
 
 WindowClass WindowClass::wndClass;
 
@@ -14,6 +15,9 @@ Window::Window(int width, int height, const char* title)
 	wr.top = 100;
 	wr.bottom = height + wr.top;
 
+	if (AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZE | WS_SYSMENU, FALSE) == 0)
+		throw ENGINE_LASTEXCEPT();
+
 	hWnd = CreateWindow
 	(
 		WindowClass::GetName(),
@@ -28,6 +32,9 @@ Window::Window(int width, int height, const char* title)
 		WindowClass::GetInstance(),
 		this
 	);
+
+	if (hWnd == nullptr)
+		throw ENGINE_LASTEXCEPT();
 
 	ShowWindow(hWnd, SW_SHOWDEFAULT);
 }
@@ -54,8 +61,7 @@ std::optional<int> Window::ProcessMessage() noexcept
 
 LRESULT WINAPI Window::MsgSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	/*Win32 needs to know where our callback is implemented
-	this does that */ 
+	/*Win32 needs to know where our callback is implemented*/ 
 	if (uMsg == WM_NCCREATE)
 	{
 		const CREATESTRUCT* const pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);

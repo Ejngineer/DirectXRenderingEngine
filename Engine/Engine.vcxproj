@@ -132,11 +132,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\ExceptionManager.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\App.h" />
+    <ClInclude Include="src\ExceptionManager.h" />
+    <ClInclude Include="src\Macros\ExceptionMacros.h" />
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\WinInclude.h" />
   </ItemGroup>

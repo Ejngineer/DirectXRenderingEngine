@@ -8,13 +8,14 @@ Window::Window(int width, int height, const char* title)
 	width(width),
 	height(height)
 {
-	//make sure height and width doesnt include title bar
+	//make sure the client region is the size we specify in code
 	RECT wr = { 0 };
 	wr.left = 100;
 	wr.right = width + wr.left;
 	wr.top = 100;
 	wr.bottom = height + wr.top;
 
+	//Calculate window size bassed on style paramaters
 	if (AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZE | WS_SYSMENU, FALSE) == 0)
 		throw ENGINE_LASTEXCEPT();
 
@@ -30,7 +31,7 @@ Window::Window(int width, int height, const char* title)
 		NULL,
 		NULL,
 		WindowClass::GetInstance(),
-		this
+		this //custom parameter so that the window contains a pointer to our window class
 	);
 
 	if (hWnd == nullptr)
@@ -61,19 +62,25 @@ std::optional<int> Window::ProcessMessage() noexcept
 
 LRESULT WINAPI Window::MsgSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	/*Win32 needs to know where our callback is implemented*/ 
 	if (uMsg == WM_NCCREATE)
 	{
+		/*Extract pointer from CREATESTRUCT that stores a pointer to our window class passed in
+		at CreateWindow call*/
 		const CREATESTRUCT* const pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
 		Window* pWnd = static_cast<Window*>(pCreate->lpCreateParams);
 
+		//Set winapi user data to store a pointer to our window class
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
 
+		//Set winapi wndproc to store pointer to our user defined WndProc function after initial setup
 		SetWindowLongPtr(hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&Window::WndProc));
-	}
-	Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
-	return pWnd->WndProc(hWnd, uMsg, wParam, lParam);
+		//invoke our class handler
+		return pWnd->WndProc(hWnd, uMsg, wParam, lParam);
+	}
+	
+	//return default handler if we get a message before WM_CREATE
+	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
 LRESULT WINAPI Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

@@ -4,7 +4,6 @@ App::App()
 	:
 	wnd(1920, 1080, "EJngineer DirectX Rendering Engine")
 {
-
 }
 
 App::~App()
@@ -20,11 +19,15 @@ int App::Go()
 		{
 			return *ecode;
 		}
-		Frame();
+		UpdateFrame();
 	}
-	return 0;
 }
 
-void App::Frame()
+void App::UpdateFrame()
 {
+	wnd.Gfx().Clear();
+	wnd.Gfx().DrawTestTriangle();
+	wnd.Gfx().EndFrame();
 }
+
+
